@@ -3,6 +3,11 @@
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import styles from './page.module.scss';
 import Link from 'next/link';
+import { loginCredentials } from './login.funtions';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { redirect, useRouter } from 'next/navigation'
+import { cookiesCreate } from '../lib/cookies.functions';
 
 interface Values {
   email: string;
@@ -10,6 +15,9 @@ interface Values {
 }
 
 export default function Login() {
+
+  const router = useRouter();
+
   return (
     <main className={styles.main}>
       <h1 className={styles.logo + ' fw-bold mb-5'}>Post-That!</h1>
@@ -21,14 +29,21 @@ export default function Login() {
             password: ''
           }}
 
-          onSubmit={(
+          onSubmit={async (
             values: Values,
             { setSubmitting }: FormikHelpers<Values>
           ) => {
-            setTimeout(() => {
-              alert(JSON.stringify(values, null, 2));
+            const response = await loginCredentials(values.email, values.password);
+            if (response["status"] === 400) {
+              toast.error(response["result"]);
               setSubmitting(false);
-            }, 500);
+            } else if (response["status"] === 200) {
+              cookiesCreate("accessToken", response["accessToken"], true, "/");
+              cookiesCreate("email", values.email, false, "/");
+              
+              setSubmitting(true);
+              router.replace("/home/");
+            }
           }}
         >
           <Form>
@@ -52,102 +67,14 @@ export default function Login() {
           </Form>
         </Formik>
       </div>
-      
+      <ToastContainer
+        position='bottom-right'
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick={true}
+        theme='light'
+      />
     </main>
   )
 }
-
-/*
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
-*/

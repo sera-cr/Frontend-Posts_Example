@@ -2,7 +2,9 @@
 
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import styles from './page.module.scss';
-import Link from 'next/link';
+import { registerUser } from './register.functions';
+import { ToastContainer, toast } from 'react-toastify';
+import { redirect, useRouter } from 'next/navigation'
 
 interface Values {
   email: string;
@@ -11,6 +13,9 @@ interface Values {
 }
 
 export default function Login() {
+
+  const router = useRouter()
+
   return (
     <main className={styles.main}>
       <h1 className={styles.logo + ' fw-bold mb-5'}>Post-That!</h1>
@@ -24,14 +29,22 @@ export default function Login() {
             password: ''
           }}
 
-          onSubmit={(
+          onSubmit={async (
             values: Values,
-            { setSubmitting }: FormikHelpers<Values>
+            { setSubmitting, resetForm }: FormikHelpers<Values>
           ) => {
-            setTimeout(() => {
-              alert(JSON.stringify(values, null, 2));
+            const response = await registerUser(values.email, values.name, values.password);
+            if (response["status"] === 200) {
+              setSubmitting(true);
+
+              router.replace("/login");
+            } else if (response["status"] == 409) {
+              toast.error("Email already in use.");
+              resetForm();
+            } else {
+              toast.error("An error occurred.");
               setSubmitting(false);
-            }, 500);
+            }
           }}
         >
           <Form>
@@ -56,7 +69,14 @@ export default function Login() {
           </Form>
         </Formik>
       </div>
-      
+      <ToastContainer
+        position='bottom-right'
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick={true}
+        theme='light'
+      />
     </main>
   )
 }
