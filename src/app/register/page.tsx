@@ -3,7 +3,8 @@
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import styles from './page.module.scss';
 import { registerUser } from './register.functions';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { redirect, useRouter } from 'next/navigation'
 
 interface Values {
@@ -16,10 +17,26 @@ export default function Login() {
 
   const router = useRouter()
 
+  const onClickSignUp = async (email: string, name: string, password: string) => {
+    const response = await registerUser(email, name, password);
+
+    if (response["status"] === 200) {
+      toast.info("Your accout has been successfully created!")
+
+      router.replace("/login");
+    } else if (response["status"] == 409) {
+      toast.error("Email already in use.");
+      return false;
+    } else {
+      toast.error("An unidentified error occurred.");
+      
+    }
+  }
+
   return (
     <main className={styles.main}>
       <h1 className={styles.logo + ' fw-bold mb-5'}>Post-That!</h1>
-      <div className={styles.login_box +
+      <div className={styles.signup_box +
         ' d-flex flex-column justify-content-center align-items-center p-5 rounded-3 bg-white'}>
         <h2 className='fs-3 fw-light mb-3'>Create an account</h2>
         <Formik
@@ -33,24 +50,15 @@ export default function Login() {
             values: Values,
             { setSubmitting, resetForm }: FormikHelpers<Values>
           ) => {
-            const response = await registerUser(values.email, values.name, values.password);
-            if (response["status"] === 200) {
-              setSubmitting(true);
-
-              router.replace("/login");
-            } else if (response["status"] == 409) {
-              toast.error("Email already in use.");
-              resetForm();
-            } else {
-              toast.error("An error occurred.");
-              setSubmitting(false);
-            }
+            setSubmitting(false);
+            onClickSignUp(values.email, values.name, values.password);
+            resetForm();
           }}
         >
           <Form>
             <div className='mb-4'>
               <label className='form-label fs-6 display-6'>Email</label>
-              <Field id="email" className={styles.login_input + " form-control"} name="email" placeholder="e.g. john@email.com" />
+              <Field id="email" className={styles.signup_input + " form-control"} name="email" placeholder="e.g. john@email.com" />
             </div>
 
             <div className='mb-4'>
@@ -64,19 +72,11 @@ export default function Login() {
             </div>
 
             <div className='mt-5 d-grid gap-2'>
-              <button type="submit" className={styles.login_button + " text-white fw-bold btn btn-lg btn-primary center"}>Sign Up!</button>
+              <button type="submit" className={styles.signup_button + " text-white fw-bold btn btn-lg btn-primary center"}>Sign Up!</button>
             </div>
           </Form>
         </Formik>
       </div>
-      <ToastContainer
-        position='bottom-right'
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick={true}
-        theme='light'
-      />
     </main>
   )
 }

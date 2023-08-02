@@ -3,11 +3,14 @@
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import styles from './page.module.scss';
 import Link from 'next/link';
-import { loginCredentials } from './login.funtions';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { redirect, useRouter } from 'next/navigation'
-import { cookiesCreate } from '../lib/cookies.functions';
+import { cookiesCreate } from '../../lib/cookies.functions';
+import { User, logIn } from '@/store/authSlice';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store/store';
+import { loginCredentials } from './login.funtions';
 
 interface Values {
   email: string;
@@ -17,6 +20,35 @@ interface Values {
 export default function Login() {
 
   const router = useRouter();
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const onClickLogIn = async (email: string, password: string) => {
+    const response = await loginCredentials(email, password);
+
+    if (response["status"] === 400) {
+      toast.error(response["result"]);
+    } else if (response["status"] === 200) {
+      const result = response["result"];
+
+      dispatch(logIn(
+        {
+          id: result["id"],
+          email: result["email"],
+          name: result["name"],
+          role: result["role"],
+        } as User
+      ));
+      
+      cookiesCreate("accessToken", result["accessToken"], true, "/");
+
+      toast.info("Login successful.")
+      
+      router.replace("/home/");
+    } else {
+      toast.error("An unidentified error occurred.");
+    }
+  }
 
   return (
     <main className={styles.main}>
@@ -33,17 +65,8 @@ export default function Login() {
             values: Values,
             { setSubmitting }: FormikHelpers<Values>
           ) => {
-            const response = await loginCredentials(values.email, values.password);
-            if (response["status"] === 400) {
-              toast.error(response["result"]);
-              setSubmitting(false);
-            } else if (response["status"] === 200) {
-              cookiesCreate("accessToken", response["accessToken"], true, "/");
-              cookiesCreate("email", values.email, false, "/");
-              
-              setSubmitting(true);
-              router.replace("/home/");
-            }
+            setSubmitting(false);
+            onClickLogIn(values.email, values.password);
           }}
         >
           <Form>
@@ -58,7 +81,7 @@ export default function Login() {
             </div>
 
             <div className='mt-5 d-grid gap-2'>
-              <button type="submit" className={styles.login_button + " text-white fw-bold btn btn-lg btn-primary center"}>Sign In</button>
+              <button type="submit" className={styles.login_button + " text-white fw-bold btn btn-lg btn-primary center"}>Log In</button>
             </div>
 
             <div className='mt-7 mb-0'>
@@ -67,14 +90,6 @@ export default function Login() {
           </Form>
         </Formik>
       </div>
-      <ToastContainer
-        position='bottom-right'
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick={true}
-        theme='light'
-      />
     </main>
   )
 }

@@ -20,20 +20,20 @@ $font-family: 'Lobster', cursive;
   text-shadow: 2px 2px black;
 }
 
-.login_box {
+.signup_box {
   width: 50vh;
   box-shadow: 3px 3px 10px gray;
 }
 
-.login_input {
+.signup_input {
   width: 40vh;
 }
 
-.login_button:hover {
+.signup_button:hover {
   background-color: $secondary;
   border-color: $secondary;
 }
 
-.login_button {
+.signup_button {
   transition: 0.3s;
 }

@@ -7,7 +7,8 @@ export async function cookiesCreate(name: string, value: string, httpOnly: boole
     name: name,
     value: value,
     httpOnly: httpOnly,
-    path: path
+    path: path,
+    sameSite: "strict"
   });
 }
 
