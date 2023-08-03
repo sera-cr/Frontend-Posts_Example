@@ -3,14 +3,16 @@
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import styles from './page.module.scss';
 import Link from 'next/link';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { redirect, useRouter } from 'next/navigation'
-import { cookiesCreate } from '../../lib/cookies.functions';
+import { useRouter } from 'next/navigation'
+import { cookiesCreate, cookiesGet } from '../../lib/cookies.functions';
 import { User, logIn } from '@/store/authSlice';
 import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/store/store';
-import { loginCredentials } from './login.funtions';
+import { AppDispatch, useAppSelector } from '@/store/store';
+import {  loginCredentials } from './login.funtions';
+import { useEffect } from 'react';
+import { getUser } from '@/lib/user.functions';
 
 interface Values {
   email: string;
@@ -20,6 +22,35 @@ interface Values {
 export default function Login() {
 
   const router = useRouter();
+
+  const isAuth = useAppSelector((state) => state.authReducer.value.isAuth);
+
+  useEffect(() => {
+    if (isAuth) {
+      router.replace("/home/");
+    } else {
+      (async () => {
+        const res = await getUser();
+  
+        console.log(res);
+  
+        if (res["status"] === 200) {
+          const result = res["result"];
+
+          dispatch(logIn(
+            {
+              id: result["id"],
+              email: result["email"],
+              name: result["name"],
+              role: result["role"],
+            } as User
+          ));
+
+          router.replace("/home/");
+        }
+      })();
+    }
+  })
 
   const dispatch = useDispatch<AppDispatch>();
 

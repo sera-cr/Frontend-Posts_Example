@@ -6,6 +6,11 @@ import { registerUser } from './register.functions';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { redirect, useRouter } from 'next/navigation'
+import { AppDispatch, useAppSelector } from '@/store/store';
+import { useEffect } from 'react';
+import { getUser } from '@/lib/user.functions';
+import { User, logIn } from '@/store/authSlice';
+import { useDispatch } from 'react-redux';
 
 interface Values {
   email: string;
@@ -15,7 +20,38 @@ interface Values {
 
 export default function Login() {
 
-  const router = useRouter()
+  const router = useRouter();
+
+  const isAuth = useAppSelector((state) => state.authReducer.value.isAuth);
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    if (isAuth) {
+      router.replace("/home/");
+    } else {
+      (async () => {
+        const res = await getUser();
+  
+        console.log(res);
+  
+        if (res["status"] === 200) {
+          const result = res["result"];
+
+          dispatch(logIn(
+            {
+              id: result["id"],
+              email: result["email"],
+              name: result["name"],
+              role: result["role"],
+            } as User
+          ));
+
+          router.replace("/home/");
+        }
+      })();
+    }
+  })
 
   const onClickSignUp = async (email: string, name: string, password: string) => {
     const response = await registerUser(email, name, password);

@@ -1,8 +1,3 @@
-import { User, logIn } from "@/store/authSlice";
-import { AppDispatch } from "@/store/store";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-
 export async function loginCredentials(email: string, password: string): Promise<any> {
     const res = await window.fetch(`${process.env.NEXT_PUBLIC_API_PATH}users/login`, {
       method: 'POST',
