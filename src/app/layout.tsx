@@ -6,8 +6,15 @@ import { Inter } from 'next/font/google'
 import { ReduxProvider } from "@/store/provider";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import dynamic from "next/dynamic";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 const inter = Inter({ subsets: ['latin'] })
+
+const DynamicBootstrap = dynamic(
+  () => require('bootstrap/dist/js/bootstrap.min.js'),
+  { ssr: false }
+);
 
 export const metadata: Metadata = {
   title: 'Post-That!',

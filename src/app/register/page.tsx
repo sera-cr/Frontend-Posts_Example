@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import { getUser } from '@/lib/user.functions';
 import { User, logIn } from '@/store/authSlice';
 import { useDispatch } from 'react-redux';
+import Logo from '../common/logo';
 
 interface Values {
   email: string;
@@ -69,7 +70,9 @@ export default function Login() {
 
   return (
     <main className={styles.main}>
-      <h1 className={styles.logo + ' fw-bold mb-5'}>Post-That!</h1>
+      <div className={styles.logo + ' mb-5'}>
+        <Logo color='white' fontSize='60px'/>
+      </div>
       <div className={styles.signup_box +
         ' d-flex flex-column justify-content-center align-items-center p-5 rounded-3 bg-white'}>
         <h2 className='fs-3 fw-light mb-3'>Create an account</h2>

@@ -5,8 +5,8 @@ import styles from "./page.module.scss";
 export default function Home() {
 
   return (
-    <main className={styles.main}>
-      <p>a</p>
-    </main>
+    <div className="float-left">
+      <button className="btn btn-primary" type="submit">Button</button>
+    </div>
   )
 }

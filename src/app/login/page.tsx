@@ -13,6 +13,7 @@ import { AppDispatch, useAppSelector } from '@/store/store';
 import {  loginCredentials } from './login.funtions';
 import { useEffect } from 'react';
 import { getUser } from '@/lib/user.functions';
+import Logo from '../common/logo';
 
 interface Values {
   email: string;
@@ -81,7 +82,9 @@ export default function Login() {
 
   return (
     <main className={styles.main}>
-      <h1 className={styles.logo + ' fw-bold mb-5'}>Post-That!</h1>
+      <div className={styles.logo + ' mb-5'}>
+        <Logo color='white' fontSize='60px'/>
+      </div>
       <div className={styles.login_box +
         ' d-flex flex-column justify-content-center align-items-center p-5 rounded-3 bg-white'}>
         <Formik

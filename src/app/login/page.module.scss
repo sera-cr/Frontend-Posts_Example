@@ -1,5 +1,4 @@
 @import "../variables.scss";
-@import url('https://fonts.googleapis.com/css?family=Bangers|Cinzel:400,700,900|Lato:100,300,400,700,900|Lobster|Lora:400,700|Mansalva|Muli:200,300,400,600,700,800,900|Open+Sans:300,400,600,700,800|Oswald:200,300,400,500,600,700|Roboto:100,300,400,500,700,900&display=swap');
 
 $font-family: 'Lobster', cursive;
 
@@ -10,14 +9,6 @@ $font-family: 'Lobster', cursive;
   align-items: center;
   padding: 6rem;
   min-height: 100vh;
-}
-
-.logo {
-  color: white;
-  font-size: 60px;
-  line-height: 0.65;
-  font-family: 'Lobster', cursive;
-  text-shadow: 2px 2px black;
 }
 
 .login_box {
@@ -36,4 +27,8 @@ $font-family: 'Lobster', cursive;
 
 .login_button {
   transition: 0.3s;
+}
+
+.logo {
+  text-shadow: 3px 3px black;
 }
