@@ -25,14 +25,14 @@ export default function Login() {
 
   const isAuth = useAppSelector((state) => state.authReducer.value.isAuth);
 
+  const dispatch = useDispatch<AppDispatch>();
+
   useEffect(() => {
     if (isAuth) {
       router.replace("/home/");
     } else {
       (async () => {
         const res = await getUser();
-  
-        console.log(res);
   
         if (res["status"] === 200) {
           const result = res["result"];
@@ -51,8 +51,6 @@ export default function Login() {
       })();
     }
   })
-
-  const dispatch = useDispatch<AppDispatch>();
 
   const onClickLogIn = async (email: string, password: string) => {
     const response = await loginCredentials(email, password);

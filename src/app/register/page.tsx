@@ -33,8 +33,6 @@ export default function Login() {
       (async () => {
         const res = await getUser();
   
-        console.log(res);
-  
         if (res["status"] === 200) {
           const result = res["result"];
 
