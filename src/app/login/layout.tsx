@@ -1,21 +1,18 @@
 'use client'
 
-import PageBar from "./pageBar/pageBar";
-import VerticalBar from "./verticalBar/verticalBar";
 import { AppDispatch, useAppSelector } from "@/store/store";
 import { useDispatch } from "react-redux";
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'
 import { getUser } from "@/lib/user.functions";
 import { User, logIn } from "@/store/authSlice";
 import { useLayoutEffect, useState } from "react";
 import Loading from "./loading";
 
-export default function HomeLayout({
+export default function LoginLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-
   const router = useRouter();
 
   const isAuth = useAppSelector((state) => state.authReducer.value.isAuth);
@@ -25,8 +22,9 @@ export default function HomeLayout({
   const [loading, setLoading] = useState(true);
 
   useLayoutEffect(() => {
-    console.log(isAuth);
-    if (!isAuth) {
+    if (isAuth) {
+      router.replace("/home/");
+    } else {
       (async () => {
         const res = await getUser();
   
@@ -41,39 +39,26 @@ export default function HomeLayout({
               role: result["role"],
             } as User
           ));
-          
-          setLoading(false);
+
+          router.replace("/home/");
         } else {
-          router.replace("/login/");
+          setLoading(false);
         }
       })();
-    } else {
-      setLoading(false);
     }
-  });
+  }, [])
 
   return (
     <div>
       {loading ?
-        <Loading />
+        <div className="d-flex flex-direction-column justify-content-center align-items-center">
+          <Loading />
+        </div>
         :
-        <main className="styles.main">
-          <div className="container-fluid">
-            <div className="row flex-nowrap">
-              <VerticalBar />
-              <div className="col px-0">
-                <div className="position-fixed">
-                  <PageBar page={"Home"}/>
-                </div>
-                
-                <div className="p-4">
-                  {children}
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-      }
+        <div>
+          {children}
+        </div>
+        }
     </div>
   )
 }

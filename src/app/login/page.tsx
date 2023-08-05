@@ -5,14 +5,12 @@ import styles from './page.module.scss';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useRouter } from 'next/navigation'
-import { cookiesCreate, cookiesGet } from '../../lib/cookies.functions';
+import { useRouter } from 'next/navigation';
+import { cookiesCreate } from '../../lib/cookies.functions';
 import { User, logIn } from '@/store/authSlice';
 import { useDispatch } from 'react-redux';
-import { AppDispatch, useAppSelector } from '@/store/store';
-import {  loginCredentials } from './login.funtions';
-import { useEffect } from 'react';
-import { getUser } from '@/lib/user.functions';
+import { AppDispatch } from '@/store/store';
+import { loginCredentials } from './login.funtions';
 import Logo from '../common/logo';
 
 interface Values {
@@ -24,34 +22,7 @@ export default function Login() {
 
   const router = useRouter();
 
-  const isAuth = useAppSelector((state) => state.authReducer.value.isAuth);
-
   const dispatch = useDispatch<AppDispatch>();
-
-  useEffect(() => {
-    if (isAuth) {
-      router.replace("/home/");
-    } else {
-      (async () => {
-        const res = await getUser();
-  
-        if (res["status"] === 200) {
-          const result = res["result"];
-
-          dispatch(logIn(
-            {
-              id: result["id"],
-              email: result["email"],
-              name: result["name"],
-              role: result["role"],
-            } as User
-          ));
-
-          router.replace("/home/");
-        }
-      })();
-    }
-  })
 
   const onClickLogIn = async (email: string, password: string) => {
     const response = await loginCredentials(email, password);
@@ -61,7 +32,7 @@ export default function Login() {
     } else if (response["status"] === 200) {
       const result = response["result"];
 
-      dispatch(logIn(
+      await dispatch(logIn(
         {
           id: result["id"],
           email: result["email"],
