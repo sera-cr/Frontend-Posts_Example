@@ -4,11 +4,12 @@ import PageBar from "./pageBar/pageBar";
 import VerticalBar from "./verticalBar/verticalBar";
 import { AppDispatch, useAppSelector } from "@/store/store";
 import { useDispatch } from "react-redux";
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { getUser } from "@/lib/user.functions";
 import { User, logIn } from "@/store/authSlice";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import Loading from "./loading";
+import React from "react";
 
 export default function HomeLayout({
   children,
@@ -24,8 +25,21 @@ export default function HomeLayout({
 
   const [loading, setLoading] = useState(true);
 
+  const [currentPage, setCurrentPage] = useState("Home");
+
+  const handleCurrentPage = (page: string) => setCurrentPage(page);
+
+  const pathName = usePathname();
+
+  useEffect(() => {  
+    const route = pathName.match('([^/]*)$');
+    let path = (route ? route[1].charAt(0).toUpperCase() + route[1].slice(1) : 'Home');
+    path = path.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    handleCurrentPage(path);
+  })
+
   useLayoutEffect(() => {
-    console.log(isAuth);
+
     if (!isAuth) {
       (async () => {
         const res = await getUser();
@@ -63,7 +77,7 @@ export default function HomeLayout({
               <VerticalBar />
               <div className="col px-0">
                 <div className="position-fixed">
-                  <PageBar page={"Home"}/>
+                  <PageBar page={currentPage}/>
                 </div>
                 
                 <div className="p-4">

@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from "react";
-import Card from "./card/card";
-import styles from "./page.module.scss";
-import LoadingCard from "./card/loadingCard";
+import Card from "../card/card";
+import styles from "../page.module.scss";
+import LoadingCard from "../card/loadingCard";
 import { Button, Form, Modal } from "react-bootstrap";
 
 
-export default function Home() {
+export default function MyPosts() {
 
   const [loadingCards, setLoadingCards] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -37,11 +37,6 @@ export default function Home() {
         :
         <LoadingCard />
       }
-      <div className="position-fixed bottom-0 end-0 mb-6 me-6">
-        <button type="button" onClick={handleShowModal} className={styles.post_button + " sticky-bottom text-white fw-bold btn btn-lg btn-primary center "} data-bs-target="#exampleModal">
-          <span className="ms-1">New Post!&nbsp;&nbsp;&nbsp;</span><i className="bi bi-pencil-fill mt" style={{fontSize: "25px"}}></i>
-        </button>
-      </div>
       <Modal
         show={showModal}
         onHide={handleCloseModal}

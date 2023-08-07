@@ -14,7 +14,6 @@ export default function LoadingCard() {
           <span className="placeholder col-6"></span>
           <span className="placeholder col-8"></span>
         </p>
-        {/*<a className="btn btn-primary disabled placeholder col-4" aria-disabled="true"></a>*/}
       </div>
     </div>
   )

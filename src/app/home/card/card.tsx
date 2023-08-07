@@ -2,6 +2,7 @@ import { Button, Form } from "react-bootstrap";
 import styles from "../page.module.scss";
 
 export default function Card({
+  name,
   user,
   title,
   content,
@@ -16,15 +17,16 @@ export default function Card({
   canEdit: boolean,
   canDelete: boolean,
   published: boolean,
-  postId: number
+  postId: number,
+  name: string
 }) {
   return (
     <div className={styles.card + " card position-static mb-4"}>
       <div className="card-header">
-        <h6 className="card-subtitle text-body-secondary">{user}</h6>
+        <h6 className="card-subtitle text-body-secondary"><b className="fs-6 text-dark">{name}</b> <small className="fs-8">{user}</small></h6>
       </div>
       <div className="card-body">
-        <h5 className="card-title">{title}</h5>
+        <h5 className="card-title"><strong>{title}</strong></h5>
         <p className="card-text">{content}</p>
         <div>
           <div className="d-flex justify-content-between flex-row">
@@ -42,7 +44,6 @@ export default function Card({
             </div>
           </div>
         </div>
-        {/*<a href="#" className="btn btn-primary">Go somewhere</a>*/}
       </div>
     </div>
   )
