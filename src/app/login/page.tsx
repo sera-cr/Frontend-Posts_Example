@@ -10,7 +10,7 @@ import { cookiesCreate } from '../../lib/cookies.functions';
 import { User, logIn } from '@/store/authSlice';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store/store';
-import { loginCredentials } from './login.funtions';
+import { loginCredentials } from '../../lib/user.functions';
 import Logo from '../common/logo';
 
 interface Values {

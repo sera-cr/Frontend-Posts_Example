@@ -2,7 +2,7 @@
 
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import styles from './page.module.scss';
-import { registerUser } from './register.functions';
+import { registerUser } from '../../lib/user.functions';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { redirect, useRouter } from 'next/navigation'
