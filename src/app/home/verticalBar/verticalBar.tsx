@@ -7,6 +7,8 @@ import { cookiesDelete } from "@/lib/cookies.functions";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
 import { logOut } from "@/store/authSlice";
+import { bioLogOut } from "@/store/bioSlice";
+import { postLogOut } from "@/store/postSlice";
 
 export default function verticalBar() {
 
@@ -14,6 +16,8 @@ export default function verticalBar() {
 
   const onLogOutClick = async () => {
     dispatch(logOut());
+    dispatch(bioLogOut());
+    dispatch(postLogOut());
     cookiesDelete("accessToken");
   }
 

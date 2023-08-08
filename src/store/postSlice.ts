@@ -35,9 +35,12 @@ export const postsCollection = createSlice({
     },
     insertUserPost: (state, action: PayloadAction<Post>) => {
       state.userPosts.push(action.payload);
+    },
+    postLogOut: () => {
+      return initialState;
     }
   }
 })
 
-export const { insertPost, insertUserPost } = postsCollection.actions;
+export const { insertPost, insertUserPost, postLogOut } = postsCollection.actions;
 export default postsCollection.reducer;
