@@ -1,31 +1,80 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Card from "./card/card";
 import styles from "./page.module.scss";
 import LoadingCard from "./card/loadingCard";
 import { Button, Form, Modal } from "react-bootstrap";
-
+import { getAllPostsStore } from "@/lib/post.functions";
+import { AppDispatch, useAppSelector } from "@/store/store";
+import { useDispatch } from "react-redux";
+import postSlice, { Post, insertPost } from "@/store/postSlice";
+import { getUserById, getUserByIdStore } from "@/lib/user.functions";
 
 export default function Home() {
 
   const [loadingCards, setLoadingCards] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [postInfo, setPosts] = useState<Array<any>>([]);
 
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+  const handleSetPosts = (posts: any[]) => setPosts(posts);
 
-  const cardsLoading = Array.from({length: 5}, (_, index) => {
+  const handleLoadingCards = (value: boolean) => setLoadingCards(value);
+
+  const allPosts = useAppSelector((state) => state.allReducers.posts.allPosts);
+
+  const currentUser = useAppSelector((state) => state.allReducers.auth.value);
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const posts: Array<any> = new Array();
+
+  useEffect(() => {
+    //console.log(allPosts);
+    (async () => {
+      if (allPosts.length <= 0) {
+        const postsList = await getAllPostsStore(currentUser);
+
+        postsList.forEach((post, index) => {
+          dispatch(insertPost(post));
+          posts.push(post);
+        })
+
+      } else {
+        allPosts.forEach((post, index) => {
+          if (!posts.find((element) => element.id === post.id)) {
+            posts.push(post);
+          }
+        })
+      }
+    }) ()
+    console.log(posts);
+    handleLoadingCards(false);
+    handleSetPosts(posts);
+  }, []);
+
+  const cardsLoading = Array.from({length: 3}, (_, index) => {
+    return (
+      <LoadingCard
+        key={index}
+      />
+    )
+  })
+
+  const cardsLoaded = Array.from(postInfo, (post, index) => {
     return (
       <Card
-        name="Name"
-        user="email@email.com"
-        title="titulooo"
-        content="contenido"
-        canEdit={true}
-        canDelete={false}
-        published={false}
-        postId={1}
+        key={`card_${index}`}
+        name={post.name}
+        user={post.email}
+        title={post.title}
+        content={post.content}
+        canEdit={currentUser.uid === post.authorId}
+        canDelete={(currentUser.uid === post.authorId) || (currentUser.isAdmin)}
+        published={post.published}
+        postId={post.id}
       />
     )
   })
@@ -35,7 +84,7 @@ export default function Home() {
       {loadingCards ?
         cardsLoading
         :
-        <LoadingCard />
+        cardsLoaded
       }
       <div className="position-fixed bottom-0 end-0 mb-6 me-6">
         <button type="button" onClick={handleShowModal} className={styles.post_button + " sticky-bottom text-white fw-bold btn btn-lg btn-primary center "} data-bs-target="#exampleModal">

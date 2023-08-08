@@ -15,7 +15,7 @@ export default function LoginLayout({
 }) {
   const router = useRouter();
 
-  const isAuth = useAppSelector((state) => state.authReducer.value.isAuth);
+  const isAuth = useAppSelector((state) => state.allReducers.auth.value.isAuth);
 
   const dispatch = useDispatch<AppDispatch>();
 

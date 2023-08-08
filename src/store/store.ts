@@ -1,10 +1,16 @@
-import { configureStore, } from "@reduxjs/toolkit";
+import { combineReducers, configureStore, } from "@reduxjs/toolkit";
 import authReducer from "./authSlice";
+import postReducer from "./postSlice";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
+
+const allReducers = combineReducers({
+  auth: authReducer,
+  posts: postReducer
+})
 
 export const store = configureStore({
   reducer: {
-    authReducer,
+    allReducers,
   }
 });
 

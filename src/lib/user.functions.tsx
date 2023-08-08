@@ -1,3 +1,4 @@
+import { User } from "@/store/authSlice";
 import { cookiesGet } from "./cookies.functions";
 
 export async function getUser(): Promise<any> {
@@ -67,4 +68,33 @@ export async function registerUser(email: string, name:string, password: string)
   const body = await res.json();
 
   return {"status": res.status, "result": body};
+}
+
+export async function getUserById(id: number): Promise<any> {
+  const cookie = await cookiesGet("accessToken");
+
+  if (cookie) {
+    const res = await window.fetch(`${process.env.NEXT_PUBLIC_API_PATH}users/${id}}`, {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        'Authorization': 'Bearer ' + cookie["value"],
+        'Content-Type': 'application/json'
+      }
+    })
+  
+    const body = await res.json()
+  
+    return {"status": res.status, "result": body};
+  } else {
+    return {"status": 401, "result": "Invalid access token."}
+  }  
+}
+
+export async function getUserByIdStore(id: number) {
+  const rest = await getUserById(id);
+
+  const user = rest["result"];
+
+  return user;
 }
