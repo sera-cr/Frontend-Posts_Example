@@ -32,7 +32,6 @@ export default function Home() {
   const posts: Array<any> = new Array();
 
   useEffect(() => {
-    //console.log(allPosts);
     (async () => {
       if (allPosts.length <= 0) {
         const postsList = await getAllPostsStore(currentUser);
@@ -50,7 +49,6 @@ export default function Home() {
         })
       }
     }) ()
-    console.log(posts);
     handleLoadingCards(false);
     handleSetPosts(posts);
   }, []);

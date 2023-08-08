@@ -16,8 +16,6 @@ export default function ProfileCard({
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
-  // w-100 p-3" style={{height: "84vh"}}
-
   return (
     <div className="mt-8 d-flex justify-content-center align-items-center flex-row"
       style={{ minHeight: "80vh" }}

@@ -1,31 +1,71 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Card from "../card/card";
-import styles from "../page.module.scss";
 import LoadingCard from "../card/loadingCard";
-import { Button, Form, Modal } from "react-bootstrap";
+import { AppDispatch, useAppSelector } from "@/store/store";
+import { useDispatch } from "react-redux";
+import { getAllUsersPostsStore } from "@/lib/post.functions";
+import { insertUserPost } from "@/store/postSlice";
 
 
 export default function MyPosts() {
 
   const [loadingCards, setLoadingCards] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [postUserInfo, setPosts] = useState<Array<any>>([]);
+  
+  const handleLoadingCards = (value: boolean) => setLoadingCards(value);
+  const handleSetUserPosts = (posts: any[]) => setPosts(posts);
 
-  const handleShowModal = () => setShowModal(true);
-  const handleCloseModal = () => setShowModal(false);
+  const userPosts = useAppSelector((state) => state.allReducers.posts.userPosts);
 
-  const cardsLoading = Array.from({length: 5}, (_, index) => {
+  const currentUser = useAppSelector((state) => state.allReducers.auth.value);
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const posts: Array<any> = new Array();
+
+  useEffect(() => {
+    (async () => {
+      if (userPosts.length <= 0) {
+        const postsList = await getAllUsersPostsStore(currentUser);
+
+        postsList.forEach((post, index) => {
+          dispatch(insertUserPost(post));
+          posts.push(post);
+        })
+      } else {
+        userPosts.forEach((post, index) => {
+          if (!posts.find((element) => element.id === post.id)) {
+            posts.push(post);
+          }
+        })
+      }
+    }) ()
+    handleLoadingCards(false);
+    handleSetUserPosts(posts);
+  }, [])
+
+  const cardsLoading = Array.from({length: 3}, (_, index) => {
+    return (
+      <LoadingCard
+        key={index}
+      />
+    )
+  })
+
+  const cardsLoaded = Array.from(postUserInfo, (post, index) => {
     return (
       <Card
-        name="Name"
-        user="email@email.com"
-        title="titulooo"
-        content="contenido"
-        canEdit={true}
-        canDelete={false}
-        published={false}
-        postId={1}
+        key={`card_${index}`}
+        name={post.name}
+        user={post.email}
+        title={post.title}
+        content={post.content}
+        canEdit={currentUser.uid === post.authorId}
+        canDelete={(currentUser.uid === post.authorId) || (currentUser.isAdmin)}
+        published={post.published}
+        postId={post.id}
       />
     )
   })
@@ -35,49 +75,12 @@ export default function MyPosts() {
       {loadingCards ?
         cardsLoading
         :
-        <LoadingCard />
+        cardsLoaded
       }
-      <Modal
-        show={showModal}
-        onHide={handleCloseModal}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>New Post</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Label>
-            Content:
-          </Form.Label>
-          <Form.Control
-            maxLength={250}
-            size="lg"
-            as="textarea"
-            rows={3}
-          />
-          <Form.Text muted>
-            The content of the post must be 250 characters long. Can contain letters, numbers, spaces and special characters.
-          </Form.Text>
-        </Modal.Body>
-        <Modal.Footer className="d-flex flex-row justify-content-between">
-          <Form>
-            <Form.Check
-              type="switch"
-              label="Publish?"
-            />
-          </Form>
-          <div>
-            <Button variant="outline-secondary" onClick={handleCloseModal} className="mx-2">
-              Close
-            </Button>
-            <Button variant="outline-primary" onClick={handleCloseModal}>
-              Post!
-            </Button>
-          </div>
-        </Modal.Footer>
-      </Modal>
     </div>
   )
+}
+
+function getAllUserPostsStore(currentUser: { isAuth: boolean; email: string; name: string; uid: number; isAdmin: boolean; }) {
+  throw new Error("Function not implemented.");
 }
