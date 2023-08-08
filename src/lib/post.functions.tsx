@@ -76,8 +76,6 @@ export async function getAllUsersPostsStore(currentUser: any) {
   const allPosts = res["result"]["posts"];
   const result: Post[] = [];
 
-  console.log(allPosts);
-
   allPosts.forEach(async (post: any) => {
     const card = {
       id: post.id,

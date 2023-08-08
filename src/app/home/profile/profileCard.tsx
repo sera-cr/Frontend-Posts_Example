@@ -1,20 +1,51 @@
+import { createBioStore, updateBioStore } from "@/lib/bio.functions";
+import { Bio, insertBio } from "@/store/bioSlice";
+import { AppDispatch } from "@/store/store";
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { useDispatch } from "react-redux";
 
 export default function ProfileCard({
   name,
   email,
-  bio
+  bio,
+  uid,
+  profileId
 }: {
   name: string,
   email: string,
   bio: string,
+  uid: number,
+  profileId: number
 }) {
 
   const [showModal, setShowModal] = useState(false);
+  const [bioForm, setBioForm] = useState(bio);
 
   const handleShowModal = () => setShowModal(true);
-  const handleCloseModal = () => setShowModal(false);
+  const handleSubmitModal = () => {
+    setShowModal(false);
+    onSubmit()
+  }
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setBioForm(bio);
+  }
+
+  const handleBioForm = (bio: any) => setBioForm(bio);
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const onSubmit = async() => {
+    let result: Bio;
+    if (profileId === -1) {
+      result = await createBioStore(uid, bioForm);
+    } else {
+      result = await updateBioStore(uid, bioForm);
+    }
+    dispatch(insertBio(result));
+  }
 
   return (
     <div className="mt-8 d-flex justify-content-center align-items-center flex-row"
@@ -31,9 +62,7 @@ export default function ProfileCard({
         </div>
       </div>
       <Modal
-        show={showModal}
-        onHide={handleCloseModal}
-        size="lg"
+        show={showModal}a
         aria-labelledby="contained-modal-title-vcenter"
         centered
       >
@@ -49,13 +78,15 @@ export default function ProfileCard({
             size="lg"
             as="textarea"
             rows={3}
+            onChange={event => handleBioForm(event.target.value)}
+            value={bioForm}
           />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="outline-secondary" onClick={handleCloseModal} className="mx-2">
             Close
           </Button>
-          <Button variant="outline-primary" onClick={handleCloseModal}>
+          <Button type="submit" variant="outline-primary" onClick={handleSubmitModal}>
             Change Bio
           </Button>
         </Modal.Footer>
