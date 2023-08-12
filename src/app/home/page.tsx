@@ -26,7 +26,6 @@ export default function Home() {
   const handleSetTitle = (title: string) => setTitle(title);
   const handleSetContent = (content: string) => setContent(content);
   const handleSetPublished = (published: boolean) => {
-    console.log(published);
     setPublished(published)
   };
 
@@ -54,7 +53,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const posts: Array<any> = new Array();
+    const posts: Array<Post> = new Array();
 
     (async () => {
       if (allPosts.length <= 0) {
@@ -64,7 +63,7 @@ export default function Home() {
           dispatch(insertPost(post));
           posts.push(post);
         })
-
+        posts.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
       } else {
         allPosts.forEach((post, index) => {
           if (!posts.find((element) => element.id === post.id)) {
@@ -93,9 +92,10 @@ export default function Home() {
 
   const cardsLoaded = Array.from(postInfo, (post, index) => {
     return (
-      <div className="col-md-8 offset-md-2">
+      <div
+        className="col-md-8 offset-md-2"
+        key={`card_${index}`}>
         <Card
-          key={`card_${index}`}
           canEdit={currentUser.uid === post.authorId}
           canDelete={(currentUser.uid === post.authorId) || (currentUser.isAdmin)}
           postId={post.id}

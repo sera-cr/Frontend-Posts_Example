@@ -27,12 +27,14 @@ export default function MyPosts() {
     const posts: Array<any> = new Array();
 
     (async () => {
-      const postsList = await getAllUsersPostsStore(currentUser);
-      if (userPosts.length <= 0 || userPosts.length !== postsList.length) {
+      if (userPosts.length <= 0) {
+        const postsList = await getAllUsersPostsStore(currentUser);
+
         postsList.forEach((post, index) => {
           dispatch(insertUserPost(post));
           posts.push(post);
         })
+        posts.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
       } else {
         userPosts.forEach((post, index) => {
           if (!posts.find((element) => element.id === post.id)) {
@@ -40,10 +42,16 @@ export default function MyPosts() {
           }
         })
       }
-    }) ()
+    }) ()    
     handleLoadingCards(false);
     handleSetUserPosts(posts);
   }, [])
+
+  useEffect(() => {
+    userPosts.forEach((post, index) => {
+        postUserInfo.push(post);
+    })
+  }, [postUserInfo])
 
   const cardsLoading = Array.from({length: 3}, (_, index) => {
     return (
@@ -54,10 +62,12 @@ export default function MyPosts() {
   })
 
   const cardsLoaded = Array.from(postUserInfo, (post, index) => {
+    postUserInfo.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
     return (
-      <div className="col-md-8 offset-md-2">
+      <div
+        className="col-md-8 offset-md-2"
+        key={`card_${index}`}>
         <Card
-          key={`card_${index}`}
           userPost={true}
           canEdit={currentUser.uid === post.authorId}
           canDelete={(currentUser.uid === post.authorId) || (currentUser.isAdmin)}

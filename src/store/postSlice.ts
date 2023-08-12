@@ -30,9 +30,11 @@ export const postsCollection = createSlice({
   reducers: {
     insertPost: (state, action: PayloadAction<Post>) => {
       state.allPosts.push(action.payload);
+      state.allPosts.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
     },
     insertUserPost: (state, action: PayloadAction<Post>) => {
       state.userPosts.push(action.payload);
+      state.userPosts.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
     },
     postLogOut: () => {
       return initialState;
@@ -45,9 +47,20 @@ export const postsCollection = createSlice({
         post.published = action.payload.published;
         post.updatedAt = action.payload.updatedAt;
       }
+      state.allPosts.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+    },
+    editUserPost: (state, action: PayloadAction<Post>) => {
+      const post = state.userPosts.find((element) => element.id === action.payload.id);
+      if (post) {
+        post.title = action.payload.title;
+        post.content = action.payload.content;
+        post.published = action.payload.published;
+        post.updatedAt = action.payload.updatedAt;
+      }
+      state.userPosts.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
     }
   }
 })
 
-export const { insertPost, insertUserPost, postLogOut, editPost } = postsCollection.actions;
+export const { insertPost, insertUserPost, postLogOut, editPost, editUserPost } = postsCollection.actions;
 export default postsCollection.reducer;

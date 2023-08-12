@@ -1,7 +1,7 @@
 import { Button, Form, Modal } from "react-bootstrap";
 import styles from "../page.module.scss";
 import { useState } from "react";
-import { Post, editPost } from "@/store/postSlice";
+import { Post, editPost, editUserPost, insertPost } from "@/store/postSlice";
 import { editPostStore } from "@/lib/post.functions";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/store/store";
@@ -65,7 +65,29 @@ export default function Card({
       canDelete: canDelete,
     } as Post;
 
-    dispatch(editPost(post));
+    dispatch(editUserPost(post));
+    if (!userPost) dispatch(editPost(post));
+  }
+
+  const onPublish = async () => {
+    const result = await editPostStore(postId, titleState, contentState, true);
+
+    const post = {
+      id: originalPost?.id,
+      title: titleState,
+      content: contentState,
+      createdAt: originalPost?.createdAt,
+      updatedAt: result.updatedAt,
+      authorId: originalPost?.authorId,
+      published: result.published,
+      name: originalPost?.name,
+      email: originalPost?.email,
+      canEdit: canEdit,
+      canDelete: canDelete,
+    } as Post;
+
+    dispatch(editUserPost(post));
+    dispatch(insertPost(post));
   }
 
   return (
@@ -81,7 +103,7 @@ export default function Card({
             {
               !originalPost?.published ?
               <Form>
-                <Button variant="outline-primary">Publish</Button>
+                <Button variant="outline-primary" onClick={onPublish}>Publish</Button>
               </Form>
               :
               <div />
