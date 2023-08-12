@@ -107,8 +107,6 @@ export async function createBio(id: number, bio: string): Promise<any> {
 export async function createBioStore(id: number, bio: string): Promise<any> {
   const res = await createBio(id, bio);
 
-  console.log("res");
-
   const data = res["result"];
 
   if (res["status"] === 200) {

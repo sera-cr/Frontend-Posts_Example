@@ -8,8 +8,7 @@ import { Button, Form, Modal } from "react-bootstrap";
 import { getAllPostsStore } from "@/lib/post.functions";
 import { AppDispatch, useAppSelector } from "@/store/store";
 import { useDispatch } from "react-redux";
-import postSlice, { Post, insertPost } from "@/store/postSlice";
-import { getUserById, getUserByIdStore } from "@/lib/user.functions";
+import { insertPost } from "@/store/postSlice";
 
 export default function Home() {
 
@@ -65,13 +64,8 @@ export default function Home() {
     return (
       <Card
         key={`card_${index}`}
-        name={post.name}
-        user={post.email}
-        title={post.title}
-        content={post.content}
         canEdit={currentUser.uid === post.authorId}
         canDelete={(currentUser.uid === post.authorId) || (currentUser.isAdmin)}
-        published={post.published}
         postId={post.id}
       />
     )

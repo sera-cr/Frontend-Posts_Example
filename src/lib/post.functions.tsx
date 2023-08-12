@@ -97,3 +97,51 @@ export async function getAllUsersPostsStore(currentUser: any) {
 
   return result;
 }
+
+export async function editPostQuery(id: number, title: string, content: string, published: boolean): Promise<any> {
+  const cookie = await cookiesGet("accessToken");
+
+  if (cookie) {
+    const res = await window.fetch(`${process.env.NEXT_PUBLIC_API_PATH}posts/${id}`, {
+      method: 'PUT',
+      mode: 'cors',
+      headers: {
+        'Authorization': 'Bearer ' + cookie["value"],
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "title": title,
+        "content": content,
+        "published": published
+      })
+    })
+
+    const body = await res.json();
+
+    return {"status": res.status, "result": body};
+  }
+}
+
+export async function editPostStore(id: number, title: string, content: string, published: boolean) {
+  const res = await editPostQuery(id, title, content, published);
+
+  const data = res["result"];
+
+  if (res["status"] === 200) {
+    return {
+      id: data.id,
+      title: data.title,
+      content: data.content,
+      published: data.published,
+      updatedAt: data.updatedAt
+    }
+  } else {
+    return {
+      id: -1,
+      title: "",
+      content: "",
+      published: false,
+      updatedAt: ""
+    }
+  }
+}

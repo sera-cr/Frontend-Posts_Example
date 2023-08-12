@@ -1,37 +1,78 @@
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, Modal } from "react-bootstrap";
 import styles from "../page.module.scss";
+import { useState } from "react";
+import { Post, editPost } from "@/store/postSlice";
+import { editPostStore } from "@/lib/post.functions";
+import { useDispatch } from "react-redux";
+import { AppDispatch, useAppSelector } from "@/store/store";
 
 export default function Card({
-  name,
-  user,
-  title,
-  content,
+  postId,
   canEdit,
   canDelete,
-  published,
-  postId,
 }: {
-  user: string,
-  title: string,
-  content: string,
-  canEdit: boolean,
-  canDelete: boolean,
-  published: boolean,
   postId: number,
-  name: string
+  canEdit: boolean,
+  canDelete: boolean
 }) {
+
+  const originalPost = useAppSelector((state) =>
+    state.allReducers.posts.allPosts.find((element) => element.id === postId));
+
+  console.log(originalPost?.canEdit);
+
+  const [showModal, setShowModal] = useState(false);
+  const [titleState, setTitle] = useState(originalPost ? originalPost.title : "");
+  const [contentState, setContent] = useState(originalPost ? originalPost.content : "");
+
+  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
+  const handleSetTitle = (title: string) => setTitle(title);
+  const handleSetContent = (content: string) => setContent(content);
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const onOpenEdit = () => {
+    handleShowModal();
+  }
+
+  const handleSubmitModal = () => {
+    setShowModal(false);
+    onSubmit();
+  }
+
+  const onSubmit = async () => {
+    const result = await editPostStore(postId, titleState, contentState, originalPost ? originalPost.published : true);
+
+    const post = {
+      id: originalPost?.id,
+      title: titleState,
+      content: contentState,
+      createdAt: originalPost?.createdAt,
+      updatedAt: result.updatedAt,
+      authorId: originalPost?.authorId,
+      published: result.published,
+      name: originalPost?.name,
+      email: originalPost?.email,
+      canEdit: originalPost?.canEdit,
+      canDelete: originalPost?.canDelete,
+    } as Post;
+
+    dispatch(editPost(post));
+  }
+
   return (
     <div className={styles.card + " card position-static mb-4"}>
       <div className="card-header">
-        <h6 className="card-subtitle text-body-secondary"><b className="fs-6 text-dark">{name}</b> <small className="fs-8">{user}</small></h6>
+        <h6 className="card-subtitle text-body-secondary"><b className="fs-6 text-dark">{originalPost?.name}</b> <small className="fs-8">{originalPost?.email}</small></h6>
       </div>
       <div className="card-body">
-        <h5 className="card-title"><strong>{title}</strong></h5>
-        <p className="card-text">{content}</p>
+        <h5 className="card-title"><strong>{titleState}</strong></h5>
+        <p className="card-text">{contentState}</p>
         <div>
           <div className="d-flex justify-content-between flex-row">
             {
-              !published ?
+              !originalPost?.published ?
               <Form>
                 <Button variant="outline-primary">Publish</Button>
               </Form>
@@ -39,12 +80,51 @@ export default function Card({
               <div />
             }
             <div>
-              { canEdit && <button type="button" className="btn btn-link rounded-circle"><i className="fs-5 bi-pencil-fill"></i></button>}
-              { canDelete && <button type="button" className="btn btn-link link-danger rounded-circle"><i className="fs-5 bi-trash3-fill"></i></button>}
+              { canEdit && <Button type="button" onClick={onOpenEdit} className="btn btn-link rounded-circle"><i className="fs-5 bi-pencil-fill"></i></Button>}
+              { canDelete && <Button type="button" className="btn btn-link link-danger rounded-circle"><i className="fs-5 bi-trash3-fill"></i></Button>}
             </div>
           </div>
         </div>
       </div>
+      <Modal
+        show={showModal}
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Post</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        <Form.Label>
+            Title:
+          </Form.Label>
+          <Form.Control
+            maxLength={250}
+            onChange={event => handleSetTitle(event.target.value)}
+            value={titleState}
+          />
+          <Form.Label>
+            Content:
+          </Form.Label>
+          <Form.Control
+            maxLength={250}
+            size="lg"
+            as="textarea"
+            rows={3}
+            onChange={event => handleSetContent(event.target.value)}
+            value={contentState}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary" onClick={handleCloseModal} className="mx-2">
+            Close
+          </Button>
+          <Button type="submit" variant="outline-primary" onClick={handleSubmitModal}>
+            Change Post
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
+
   )
 }
