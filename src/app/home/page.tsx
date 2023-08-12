@@ -5,10 +5,10 @@ import Card from "./card/card";
 import styles from "./page.module.scss";
 import LoadingCard from "./card/loadingCard";
 import { Button, Form, Modal } from "react-bootstrap";
-import { getAllPostsStore } from "@/lib/post.functions";
+import { createPostStore, getAllPostsStore } from "@/lib/post.functions";
 import { AppDispatch, useAppSelector } from "@/store/store";
 import { useDispatch } from "react-redux";
-import { insertPost } from "@/store/postSlice";
+import { Post, insertPost, insertUserPost } from "@/store/postSlice";
 
 export default function Home() {
 
@@ -16,9 +16,19 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [postInfo, setPosts] = useState<Array<any>>([]);
 
+  const [titleState, setTitle] = useState("");
+  const [contentState, setContent] = useState("");
+  const [publishedState, setPublished] = useState(false);
+
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
   const handleSetPosts = (posts: any[]) => setPosts(posts);
+  const handleSetTitle = (title: string) => setTitle(title);
+  const handleSetContent = (content: string) => setContent(content);
+  const handleSetPublished = (published: boolean) => {
+    console.log(published);
+    setPublished(published)
+  };
 
   const handleLoadingCards = (value: boolean) => setLoadingCards(value);
 
@@ -28,9 +38,24 @@ export default function Home() {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const posts: Array<any> = new Array();
+  const handleSubmitModal = () => {
+    handleCloseModal();
+    onSubmit()
+  }
+
+  const onSubmit = async() => {
+    const post: Post = await createPostStore(titleState, contentState, publishedState);
+
+    await dispatch(insertUserPost(post));
+    if (post.published) {
+      postInfo.push(post);
+      await dispatch(insertPost(post))
+    };
+  }
 
   useEffect(() => {
+    const posts: Array<any> = new Array();
+
     (async () => {
       if (allPosts.length <= 0) {
         const postsList = await getAllPostsStore(currentUser);
@@ -52,6 +77,12 @@ export default function Home() {
     handleSetPosts(posts);
   }, []);
 
+  useEffect(() => {
+    allPosts.forEach((post, index) => {
+        postInfo.push(post);
+    })
+  }, [postInfo])
+
   const cardsLoading = Array.from({length: 3}, (_, index) => {
     return (
       <LoadingCard
@@ -62,12 +93,15 @@ export default function Home() {
 
   const cardsLoaded = Array.from(postInfo, (post, index) => {
     return (
-      <Card
-        key={`card_${index}`}
-        canEdit={currentUser.uid === post.authorId}
-        canDelete={(currentUser.uid === post.authorId) || (currentUser.isAdmin)}
-        postId={post.id}
-      />
+      <div className="col-md-8 offset-md-2">
+        <Card
+          key={`card_${index}`}
+          canEdit={currentUser.uid === post.authorId}
+          canDelete={(currentUser.uid === post.authorId) || (currentUser.isAdmin)}
+          postId={post.id}
+          userPost={false}
+        />
+      </div>
     )
   })
 
@@ -78,7 +112,7 @@ export default function Home() {
         :
         cardsLoaded
       }
-      <div className="position-fixed bottom-0 end-0 mb-6 me-6">
+      <div className="position-fixed bottom-0 end-0 mb-8 me-4">
         <button type="button" onClick={handleShowModal} className={styles.post_button + " sticky-bottom text-white fw-bold btn btn-lg btn-primary center "} data-bs-target="#exampleModal">
           <span className="ms-1">New Post!&nbsp;&nbsp;&nbsp;</span><i className="bi bi-pencil-fill mt" style={{fontSize: "25px"}}></i>
         </button>
@@ -95,6 +129,18 @@ export default function Home() {
         </Modal.Header>
         <Modal.Body>
           <Form.Label>
+            Title:
+          </Form.Label>
+          <Form.Control
+            maxLength={100}
+            onChange={event => handleSetTitle(event.target.value)}
+            value={titleState}
+          />
+          <Form.Text muted>
+            The title of the post must be 100 characters long. Can contain letters, numbers, spaces and special characters.
+          </Form.Text>
+          <br />
+          <Form.Label>
             Content:
           </Form.Label>
           <Form.Control
@@ -102,6 +148,8 @@ export default function Home() {
             size="lg"
             as="textarea"
             rows={3}
+            value={contentState}
+            onChange={event => handleSetContent(event.target.value)}
           />
           <Form.Text muted>
             The content of the post must be 250 characters long. Can contain letters, numbers, spaces and special characters.
@@ -112,13 +160,14 @@ export default function Home() {
             <Form.Check
               type="switch"
               label="Publish?"
+              onChange={event => handleSetPublished(event.target.checked)}
             />
           </Form>
           <div>
             <Button variant="outline-secondary" onClick={handleCloseModal} className="mx-2">
               Close
             </Button>
-            <Button variant="outline-primary" onClick={handleCloseModal}>
+            <Button variant="outline-primary" onClick={handleSubmitModal}>
               Post!
             </Button>
           </div>

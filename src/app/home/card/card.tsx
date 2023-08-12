@@ -10,16 +10,23 @@ export default function Card({
   postId,
   canEdit,
   canDelete,
+  userPost
 }: {
   postId: number,
   canEdit: boolean,
   canDelete: boolean
+  userPost: boolean
 }) {
 
-  const originalPost = useAppSelector((state) =>
-    state.allReducers.posts.allPosts.find((element) => element.id === postId));
+  let originalPost: Post | undefined;
 
-  console.log(originalPost?.canEdit);
+  if (!userPost) {
+    originalPost = useAppSelector((state) =>
+      state.allReducers.posts.allPosts.find((element) => element.id === postId));
+  } else {
+    originalPost = useAppSelector((state) => 
+      state.allReducers.posts.userPosts.find((element) => element.id === postId));
+  }
 
   const [showModal, setShowModal] = useState(false);
   const [titleState, setTitle] = useState(originalPost ? originalPost.title : "");
@@ -54,8 +61,8 @@ export default function Card({
       published: result.published,
       name: originalPost?.name,
       email: originalPost?.email,
-      canEdit: originalPost?.canEdit,
-      canDelete: originalPost?.canDelete,
+      canEdit: canEdit,
+      canDelete: canDelete,
     } as Post;
 
     dispatch(editPost(post));
@@ -95,11 +102,11 @@ export default function Card({
           <Modal.Title>Edit Post</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <Form.Label>
+          <Form.Label>
             Title:
           </Form.Label>
           <Form.Control
-            maxLength={250}
+            maxLength={100}
             onChange={event => handleSetTitle(event.target.value)}
             value={titleState}
           />

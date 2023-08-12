@@ -145,3 +145,59 @@ export async function editPostStore(id: number, title: string, content: string, 
     }
   }
 }
+
+export async function createPostQuery(title: string, content: string, published: boolean): Promise<any> {
+  const cookie = await cookiesGet("accessToken");
+
+  if (cookie) {
+    const res = await window.fetch(`${process.env.NEXT_PUBLIC_API_PATH}posts/`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Authorization': 'Bearer ' + cookie["value"],
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "title": title,
+        "content": content,
+        "published": published
+      })
+    })
+
+    const body = await res.json();
+
+    return {"status": res.status, "result": body};
+  }
+}
+
+export async function createPostStore(title: string, content: string, published: boolean): Promise<any> {
+  const res = await createPostQuery(title, content, published);
+
+  const data = res["result"];
+
+  if (res["status"] === 200) {
+    return {
+      id: data.id,
+      title: data.title,
+      content: data.content,
+      published: data.published,
+      updatedAt: data.updatedAt,
+      createdAt: data.createdAt,
+      name: data.author.name,
+      authorId: data.author.id,
+      email: data.author.email
+    } as Post;
+  } else {
+    return {
+      id: -1,
+      title: "",
+      content: "",
+      published: false,
+      updatedAt: "",
+      createdAt: "",
+      name: "",
+      authorId: -1,
+      email: ""
+    } as Post;
+  }
+}

@@ -10,8 +10,6 @@ export type Post = {
   published: boolean;
   name: string;
   email: string;
-  canEdit: boolean;
-  canDelete: boolean;
 }
 
 type PostsCollectionState = Array<Post>;

@@ -23,13 +23,12 @@ export default function MyPosts() {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const posts: Array<any> = new Array();
-
   useEffect(() => {
-    (async () => {
-      if (userPosts.length <= 0) {
-        const postsList = await getAllUsersPostsStore(currentUser);
+    const posts: Array<any> = new Array();
 
+    (async () => {
+      const postsList = await getAllUsersPostsStore(currentUser);
+      if (userPosts.length <= 0 || userPosts.length !== postsList.length) {
         postsList.forEach((post, index) => {
           dispatch(insertUserPost(post));
           posts.push(post);
@@ -56,17 +55,15 @@ export default function MyPosts() {
 
   const cardsLoaded = Array.from(postUserInfo, (post, index) => {
     return (
-      <Card
-        key={`card_${index}`}
-        name={post.name}
-        user={post.email}
-        title={post.title}
-        content={post.content}
-        canEdit={currentUser.uid === post.authorId}
-        canDelete={(currentUser.uid === post.authorId) || (currentUser.isAdmin)}
-        published={post.published}
-        postId={post.id}
-      />
+      <div className="col-md-8 offset-md-2">
+        <Card
+          key={`card_${index}`}
+          userPost={true}
+          canEdit={currentUser.uid === post.authorId}
+          canDelete={(currentUser.uid === post.authorId) || (currentUser.isAdmin)}
+          postId={post.id}
+        />
+      </div>
     )
   })
 
@@ -79,8 +76,4 @@ export default function MyPosts() {
       }
     </div>
   )
-}
-
-function getAllUserPostsStore(currentUser: { isAuth: boolean; email: string; name: string; uid: number; isAdmin: boolean; }) {
-  throw new Error("Function not implemented.");
 }
