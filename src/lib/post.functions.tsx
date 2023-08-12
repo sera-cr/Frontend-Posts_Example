@@ -1,6 +1,5 @@
 import { Post } from "@/store/postSlice";
 import { cookiesGet } from "./cookies.functions";
-import { getUserByIdStore } from "./user.functions";
 
 export async function getAllPosts(): Promise<any> {
 
@@ -200,4 +199,27 @@ export async function createPostStore(title: string, content: string, published:
       email: ""
     } as Post;
   }
+}
+
+export async function deletePostQuery(id: number): Promise<any> {
+  const cookie = await cookiesGet("accessToken");
+
+  if (cookie) {
+    const res = await window.fetch(`${process.env.NEXT_PUBLIC_API_PATH}posts/${id}`, {
+      method: 'DELETE',
+      mode: 'cors',
+      headers: {
+        'Authorization': 'Bearer ' + cookie["value"],
+        'Content-Type': 'application/json',
+      }
+    })
+
+    const body = await res.json();
+
+    return {"status": res.status, "result": body};
+  }
+}
+
+export async function deletePostStore(id: number): Promise<any> {
+  const res = await deletePostQuery(id);
 }

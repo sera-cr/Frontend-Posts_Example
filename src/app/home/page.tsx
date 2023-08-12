@@ -78,7 +78,7 @@ export default function Home() {
 
   useEffect(() => {
     allPosts.forEach((post, index) => {
-        postInfo.push(post);
+      postInfo.push(post);
     })
   }, [postInfo])
 

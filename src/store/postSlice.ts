@@ -58,9 +58,19 @@ export const postsCollection = createSlice({
         post.updatedAt = action.payload.updatedAt;
       }
       state.userPosts.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
-    }
+    },
+    deletePost: (state, action: PayloadAction<number>) => {
+      const index = state.allPosts.findIndex((element) => element.id === action.payload);
+      state.allPosts.splice(index, 1);
+      state.allPosts.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+    },
+    deleteUserPost: (state, action: PayloadAction<number>) => {
+      const index = state.userPosts.findIndex((element) => element.id === action.payload);
+      state.userPosts.splice(index, 1);
+      state.userPosts.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+    },
   }
 })
 
-export const { insertPost, insertUserPost, postLogOut, editPost, editUserPost } = postsCollection.actions;
+export const { insertPost, insertUserPost, postLogOut, editPost, editUserPost, deletePost, deleteUserPost } = postsCollection.actions;
 export default postsCollection.reducer;

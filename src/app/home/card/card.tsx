@@ -1,8 +1,8 @@
 import { Button, Form, Modal } from "react-bootstrap";
 import styles from "../page.module.scss";
 import { useState } from "react";
-import { Post, editPost, editUserPost, insertPost } from "@/store/postSlice";
-import { editPostStore } from "@/lib/post.functions";
+import { Post, deletePost, deleteUserPost, editPost, editUserPost, insertPost } from "@/store/postSlice";
+import { deletePostStore, editPostStore } from "@/lib/post.functions";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/store/store";
 
@@ -90,70 +90,77 @@ export default function Card({
     dispatch(insertPost(post));
   }
 
-  return (
-    <div className={styles.card + " card position-static mb-4"}>
-      <div className="card-header">
-        <h6 className="card-subtitle text-body-secondary"><b className="fs-6 text-dark">{originalPost?.name}</b> <small className="fs-8">{originalPost?.email}</small></h6>
-      </div>
-      <div className="card-body">
-        <h5 className="card-title"><strong>{titleState}</strong></h5>
-        <p className="card-text">{contentState}</p>
-        <div>
-          <div className="d-flex justify-content-between flex-row">
-            {
-              !originalPost?.published ?
-              <Form>
-                <Button variant="outline-primary" onClick={onPublish}>Publish</Button>
-              </Form>
-              :
-              <div />
-            }
-            <div>
-              { canEdit && <Button type="button" onClick={onOpenEdit} className="btn btn-link rounded-circle"><i className="fs-5 bi-pencil-fill"></i></Button>}
-              { canDelete && <Button type="button" className="btn btn-link link-danger rounded-circle"><i className="fs-5 bi-trash3-fill"></i></Button>}
+  const onDelete = async () => {
+    await deletePostStore(postId);
+    await dispatch(deletePost(postId));
+    await dispatch(deleteUserPost(postId));
+  }
+
+  if (originalPost) {
+    return (
+      <div className={styles.card + " card position-static mb-4"}>
+        <div className="card-header">
+          <h6 className="card-subtitle text-body-secondary"><b className="fs-6 text-dark">{originalPost?.name}</b> <small className="fs-8">{originalPost?.email}</small></h6>
+        </div>
+        <div className="card-body">
+          <h5 className="card-title"><strong>{titleState}</strong></h5>
+          <p className="card-text">{contentState}</p>
+          <div>
+            <div className="d-flex justify-content-between flex-row">
+              {
+                !originalPost?.published ?
+                <Form>
+                  <Button variant="outline-primary" onClick={onPublish}>Publish</Button>
+                </Form>
+                :
+                <div />
+              }
+              <div>
+                { canEdit && <Button type="button" onClick={onOpenEdit} className="btn btn-link rounded-circle"><i className="fs-5 bi-pencil-fill"></i></Button>}
+                { canDelete && <Button type="button" onClick={onDelete} className="btn btn-link link-danger rounded-circle"><i className="fs-5 bi-trash3-fill"></i></Button>}
+              </div>
             </div>
           </div>
         </div>
+        <Modal
+          show={showModal}
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Post</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form.Label>
+              Title:
+            </Form.Label>
+            <Form.Control
+              maxLength={100}
+              onChange={event => handleSetTitle(event.target.value)}
+              value={titleState}
+            />
+            <Form.Label>
+              Content:
+            </Form.Label>
+            <Form.Control
+              maxLength={250}
+              size="lg"
+              as="textarea"
+              rows={3}
+              onChange={event => handleSetContent(event.target.value)}
+              value={contentState}
+            />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="outline-secondary" onClick={handleCloseModal} className="mx-2">
+              Close
+            </Button>
+            <Button type="submit" variant="outline-primary" onClick={handleSubmitModal}>
+              Change Post
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
-      <Modal
-        show={showModal}
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Post</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Label>
-            Title:
-          </Form.Label>
-          <Form.Control
-            maxLength={100}
-            onChange={event => handleSetTitle(event.target.value)}
-            value={titleState}
-          />
-          <Form.Label>
-            Content:
-          </Form.Label>
-          <Form.Control
-            maxLength={250}
-            size="lg"
-            as="textarea"
-            rows={3}
-            onChange={event => handleSetContent(event.target.value)}
-            value={contentState}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={handleCloseModal} className="mx-2">
-            Close
-          </Button>
-          <Button type="submit" variant="outline-primary" onClick={handleSubmitModal}>
-            Change Post
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
-
-  )
+    )
+  }
 }
