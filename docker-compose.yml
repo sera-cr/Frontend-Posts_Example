@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  api: 
+    build:
+      context: .
+      dockerfile: dockerfile
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    container_name: post-that_front-docker
+    expose:
+      - '3020'
+    ports:
+      - '3020:3020'
+    network_mode: "host"
+    command: npm run start
